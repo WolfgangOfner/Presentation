@@ -1,0 +1,10 @@
+parameters:
+  - name: branch
+    type: string
+    default:
+
+steps:
+  - script: |   
+     git checkout -b ${{ parameters.branch }}
+    displayName: Checkout ${{ parameters.branch }}
+    workingDirectory: $(System.DefaultWorkingDirectory)

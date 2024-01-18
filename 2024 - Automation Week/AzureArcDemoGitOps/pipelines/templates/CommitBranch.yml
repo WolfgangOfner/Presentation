@@ -1,0 +1,16 @@
+parameters:
+  - name: branch
+    type: string
+    default:
+  - name: repository
+    type: string
+    default:
+
+steps:
+  - script: |
+     git add -A
+     git commit -m "Prepared ${{ parameters.repository }} for deployment"
+     git pull # needed to get updates that might have happened on this branch since the checkout
+     git push --set-upstream origin ${{ parameters.branch }}
+    displayName: Commit branch ${{ parameters.branch }}
+    workingDirectory: $(System.DefaultWorkingDirectory)

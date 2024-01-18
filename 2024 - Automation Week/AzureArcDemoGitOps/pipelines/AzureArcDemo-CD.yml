@@ -1,0 +1,45 @@
+trigger:
+  none
+
+parameters:
+- name: tag
+  displayName: Container Tag
+  type: string
+  default: 0.0.0
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  Branch: master
+  ValuesFilePath: './AzureArcDemo/AzureArcDemo/values.yaml'
+  AzureSubscription: AzureServiceConnection
+  AcrName: wolfgangspeakingdemo
+  Repository: azurearcdemo
+
+steps:
+- checkout: self
+  persistCredentials: true
+
+- template: templates/ConfigureGitConfig.yml
+
+- template: templates/CheckoutBranch.yml
+  parameters:
+    branch: $(Branch)
+
+- template: templates/SetContainerTag.yml
+  parameters:
+    acrName: $(AcrName)
+    azureSubscription: $(AzureSubscription)
+    repository: $(Repository)
+    tag: ${{ parameters.tag }}
+
+- template: templates/ReplaceTagInValuesFile.yml
+  parameters:
+    tag: $(Tag)  
+    valuesFilePath: $(ValuesFilePath)
+
+- template: templates/CommitBranch.yml
+  parameters:
+    branch: $(Branch)
+    repository: $(Repository)

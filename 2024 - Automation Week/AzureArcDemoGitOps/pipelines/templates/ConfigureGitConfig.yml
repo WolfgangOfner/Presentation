@@ -1,0 +1,5 @@
+steps:
+  - script: |
+     git config --global user.email deployment@ProgrammingWithWolfgang.ch & git config --global user.name "Pipeline"
+    workingDirectory: $(System.DefaultWorkingDirectory)
+    displayName: Configure Git user

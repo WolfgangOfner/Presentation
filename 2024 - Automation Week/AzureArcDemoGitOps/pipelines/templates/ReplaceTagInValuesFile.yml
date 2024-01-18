@@ -1,0 +1,19 @@
+parameters:
+  - name: tag
+    type: string
+    default:
+  - name: valuesFilePath
+    type: string
+    default:
+
+steps:
+  - task: PowerShell@2
+    inputs:
+      targetType: 'inline'
+      script: |        
+        $file = '${{ parameters.valuesFilePath }}'
+        $regex = 'tag: [0-9]+.[0-9]+.[0-9]+'
+        (Get-Content $file) -replace $regex, 'tag: ${{ parameters.tag }}' | Set-Content $file
+      pwsh: true
+      workingDirectory: '$(System.DefaultWorkingDirectory)'
+    displayName: "Replace tag in values file"

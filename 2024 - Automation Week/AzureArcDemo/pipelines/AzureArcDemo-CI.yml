@@ -1,0 +1,83 @@
+name : AzureArcDemo-CI
+trigger:
+  branches:
+    include:
+      - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:  
+  ArtifactName: 'AzureArcDemo'
+  BuildId: $(Build.BuildId)
+  BuildNumber: $(GitVersion.FullSemVer)
+  ContainerRegistry: DockerHub
+  Repository: 'wolfgangofner/azurearcdemo'
+
+stages:
+- stage: Build  
+  jobs:  
+  - job: Build
+    displayName: Build and push Docker image to DockerHub
+    steps:         
+      - task: gitversion/setup@0
+        displayName: Install GitVersion
+        inputs:
+          versionSpec: '5.x'
+          
+      - task: gitversion/execute@0
+        displayName: Determine Version
+
+      - task: Docker@2
+        displayName: 'Run Tests'
+        inputs:
+          containerRegistry: $(ContainerRegistry)
+          repository: $(Repository)
+          command: 'build'
+          Dockerfile: '**/$(ArtifactName)/Dockerfile'
+          buildContext: .
+          tags: |      
+            $(BuildNumber)
+          arguments: '--target test --build-arg BuildId=$(BuildId)'
+      
+      - pwsh: |
+         $id=docker images --filter "label=test=$(BuildId)" -q | Select-Object -First 1
+         docker create --name testcontainer $id
+         docker cp testcontainer:/testresults ./testresults
+         docker rm testcontainer
+        displayName: 'Copy test results' 
+      
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFormat: 'VSTest'
+          testResultsFiles: '**/*.trx'
+          searchFolder: '$(System.DefaultWorkingDirectory)/testresults'
+        displayName: 'Publish test results'
+      
+      - task: PublishCodeCoverageResults@1
+        inputs:
+          codeCoverageTool: 'Cobertura'
+          summaryFileLocation: '$(System.DefaultWorkingDirectory)/testresults/coverage/coverage.cobertura.xml'
+          reportDirectory: '$(System.DefaultWorkingDirectory)/testresults/coverage/reports'
+        displayName: 'Publish code coverage results'
+
+      - task: Docker@2
+        displayName: 'Build Docker Container'
+        inputs:
+          containerRegistry: $(ContainerRegistry)
+          repository: $(Repository)
+          command: 'build'
+          Dockerfile: '**/$(ArtifactName)/Dockerfile'
+          buildContext: .
+          tags: |      
+            $(BuildNumber)
+          arguments: '--build-arg BuildId=$(BuildId)'
+
+      - task: Docker@2
+        displayName: 'Push Docker Container'
+        inputs:
+          containerRegistry: $(ContainerRegistry)
+          repository: $(Repository)
+          command: 'push'
+          tags: |      
+            $(BuildNumber)

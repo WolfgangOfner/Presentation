@@ -1,0 +1,34 @@
+parameters:
+  - name: acrName
+    type: string
+    default:
+  - name: azureSubscription
+    type: string
+    default:
+  - name: repository
+    type: string
+    default:
+  - name: tag
+    type: string
+    default:
+
+steps:
+  - ${{ if eq(parameters.tag, '0.0.0') }}:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: ${{ parameters.azureSubscription }}
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+            $tag =$(az acr repository show-tags --name ${{ parameters.acrName }} --repository ${{ parameters.repository }} --top 1 --orderby time_desc --detail --query [0].name)  -replace '"', ""
+            Write-Host "##vso[task.setvariable variable=Tag;]$tag"
+      displayName: "Read latest container tag"  
+  
+  - ${{ if ne(parameters.tag, '0.0.0') }}:
+    - task: PowerShell@2
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "##vso[task.setvariable variable=Tag;]${{ parameters.tag }}"
+        pwsh: true
+      displayName: "Set tag from user input"
