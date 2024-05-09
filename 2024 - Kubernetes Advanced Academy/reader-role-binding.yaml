@@ -1,0 +1,14 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: reader-user-binding
+  namespace: read
+subjects:
+  - kind: Group
+    name: 24975d09-19e9-47a5-aa3b-e952c693c016
+    #Azure AD group
+    namespace: read
+roleRef:
+  kind: ClusterRole
+  name: view
+  apiGroup: rbac.authorization.k8s.io
