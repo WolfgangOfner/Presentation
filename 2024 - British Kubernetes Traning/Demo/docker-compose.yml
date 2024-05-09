@@ -1,0 +1,57 @@
+version: "3.9"
+    
+services:
+  wordpress:
+    image: wordpress
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
+    volumes:
+      - wordpress:/var/www/html
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: exampledb
+      MYSQL_USER: exampleuser
+      MYSQL_PASSWORD: examplepass
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - db:/var/lib/mysql
+
+  net8:
+    image: mcr.microsoft.com/dotnet/samples:aspnetapp
+    ports:
+      - "9000:8080"
+  
+  sqldb:
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    ports:
+      - "1433:1433"
+    environment:
+        SA_PASSWORD: "yourStrong(!)Password"
+        ACCEPT_EULA: "Y"
+
+  redis:
+    image: docker.io/bitnami/redis:6.2
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    ports:
+      - '6379:6379'
+    volumes:
+      - 'redis_data:/bitnami/redis/data'
+
+volumes:
+  wordpress:
+  db:      
+  redis_data:
+    driver: local
+
+# \\wsl$\docker-desktop-data\data\docker\volumes

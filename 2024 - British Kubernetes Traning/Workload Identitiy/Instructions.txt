@@ -1,0 +1,33 @@
+$ResourceGroup="KubernetesDemo"
+$AksName="WorkloadIdentityCluster"
+$Location="canadacentral" # choose location close to you
+$ServiceAccountNamespace="workload-identity"
+$ServiceAccountName="workload-identity-sa"
+$SubscriptionId="$(az account show --query id --output tsv)"
+$UserAssignedIdentityName="userAssignedIdentity"
+$FederatedIdentityCredentialName="federateIdentitiy"
+$KeyVaultName="kubernetesdemowolfgang" # name must be unique
+$KeyVaultSecret="WorkloadSecret"
+
+az keyvault create --resource-group "$ResourceGroup" --location "$Location" --name "$KeyVaultName" --enable-rbac-authorization true
+az role assignment create --role "Key Vault Administrator" --assignee <YOUR_EMAIL> --scope /subscriptions/$SubscriptionId/resourcegroups/$ResourceGroup/providers/Microsoft.KeyVault/vaults/$KeyVaultName
+az keyvault secret set --vault-name "$KeyVaultName" --name "$KeyVaultSecret" --value 'This is a secret!'
+$KeyVaultUrl="$(az keyvault show -g "$ResourceGroup" -n $KeyVaultName --query properties.vaultUri -o tsv)"
+
+az aks create -g "$ResourceGroup" -n $AksName --node-count 1 --enable-oidc-issuer --enable-workload-identity --generate-ssh-keys -l $Location
+
+$AksOidcIssuer="$(az aks show -n $AksName -g "$ResourceGroup" --query "oidcIssuerProfile.issuerUrl" -otsv)"
+az identity create --name "$UserAssignedIdentityName" --resource-group "$ResourceGroup" --location "$Location" --subscription "$SubscriptionId"
+$UserAssignedClientId="$(az identity show --resource-group "$ResourceGroup" --name "$UserAssignedIdentityName" --query 'clientId' -otsv)"
+az role assignment create --role "Key Vault Secrets User" --assignee "$UserAssignedClientId" --scope /subscriptions/$SubscriptionId/resourcegroups/$ResourceGroup/providers/Microsoft.KeyVault/vaults/$KeyVaultName
+
+az aks get-credentials --resource-group $ResourceGroup --name $AksName --overwrite-existing
+kubectl create ns workload-identity
+kubectl config set-context --current --namespace=workload-identity
+kubectl apply -f serviceAccountWorkloadIdentitiy.yaml
+
+az identity federated-credential create --name $FederatedIdentityCredentialName --identity-name $UserAssignedIdentityName --resource-group $ResourceGroup --issuer $AksOidcIssuer --subject system:serviceaccount:${ServiceAccountNamespace}:${ServiceAccountName}
+
+kubectl apply -f podWorkloadIdentitiy.yaml
+kuebctl get pods
+kubectl logs quick-start
