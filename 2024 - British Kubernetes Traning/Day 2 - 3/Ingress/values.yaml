@@ -27,15 +27,15 @@ service:
 ingress:
   enabled: __IngressEnabled__
   className: __ClassName__
-  annotations: 
+  annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/use-regex: "true"
+    kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: letsencrypt
-  namespace: __K8sNamespace__
-  path: /  
-  pathType: Prefix
   hosts:
-    - __URL__
+    - host: __URL__
+      paths:
+        - path: /
+          pathType: Prefix
   tls:
     - secretName: __TlsSecretName__
       hosts:
@@ -43,20 +43,20 @@ ingress:
 
 # ingress:
 #   enabled: true
-#   className: nginx
-#   annotations: 
+#   className: "nginx"
+#   annotations:
 #     kubernetes.io/ingress.class: nginx
-#     nginx.ingress.kubernetes.io/use-regex: "true"
+#     kubernetes.io/tls-acme: "true"
 #     cert-manager.io/cluster-issuer: letsencrypt
-#   namespace: ingress
-#   path: /  
-#   pathType: Prefix
 #   hosts:
-#     - ingress.training.programmingwithwolfgang.com
+#     - host: YOURURL.training.programmingwithwolfgang.com
+#       paths:
+#         - path: /
+#           pathType: Prefix
 #   tls:
 #     - secretName: ingress-tls-secret
 #       hosts:
-#         - ingress.training.programmingwithwolfgang.com
+#         - YOURURL.training.programmingwithwolfgang.com
 
 resources: {}
 
