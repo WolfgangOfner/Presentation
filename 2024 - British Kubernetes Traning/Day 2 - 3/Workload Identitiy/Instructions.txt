@@ -29,5 +29,5 @@ kubectl apply -f serviceAccountWorkloadIdentitiy.yaml
 az identity federated-credential create --name $FederatedIdentityCredentialName --identity-name $UserAssignedIdentityName --resource-group $ResourceGroup --issuer $AksOidcIssuer --subject system:serviceaccount:${ServiceAccountNamespace}:${ServiceAccountName}
 
 kubectl apply -f podWorkloadIdentitiy.yaml
-kuebctl get pods
+kubectl get pods
 kubectl logs quick-start
