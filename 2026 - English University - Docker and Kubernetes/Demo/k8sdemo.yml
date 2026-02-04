@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: kubernetesdemo
-        image: wolfgangofner/kubernetesdeploymentdemo:start
+        image: wolfgangofner/kubernetesdeploymentdemo:end
         ports:
         - containerPort: 80
         readinessProbe:         # remove this section if you use a different image
