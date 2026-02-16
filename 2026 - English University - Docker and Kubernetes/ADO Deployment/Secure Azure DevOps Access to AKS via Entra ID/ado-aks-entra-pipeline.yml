@@ -12,17 +12,16 @@ variables:
 steps:
   - checkout: none
 
-  - task: AzureCLI@2
-    displayName: "Create resource group"
+  - task: AzureCLI@2    
     inputs:
       azureSubscription: '$(AzureServiceConnection)'
       scriptType: 'pscore'
       scriptLocation: 'inlineScript'
       inlineScript: |
         az group create -g $(ResourceGroupName) -l $(ResourceGroupLocation)
+    displayName: "Create resource group"
 
-  - task: AzureCLI@2
-    displayName: "Create AKS cluster"
+  - task: AzureCLI@2    
     inputs:
       azureSubscription: '$(AzureServiceConnection)'
       scriptType: 'pscore'
@@ -31,8 +30,9 @@ steps:
         az aks create `
             --resource-group "$(ResourceGroupName)" `
             --name "$(AksClusterName)" `
-            --enable-aad `
-            --enable-azure-rbac
+            --enable-aad `
+            --enable-azure-rbac
+    displayName: "Create AKS Cluster"
 
   - task: AzureCLI@2
     inputs:
@@ -52,7 +52,7 @@ steps:
   - task: KubeloginInstaller@0
     inputs:
       kubeloginVersion: 'latest'
-    displayName: installkubelogin
+    displayName: 'Install Kubelogin'
 
   - task: AzureCLI@2
     inputs:
@@ -76,7 +76,7 @@ steps:
   - task: HelmDeploy@1
     inputs:
       connectionType: 'Azure Resource Manager'
-      azureSubscription: 'AzureServiceConnection'
+      azureSubscription: '$(AzureServiceConnection)'
       azureResourceGroup: '$(ResourceGroupName)'
       kubernetesCluster: '$(AksClusterName)'
       namespace: 'default'
