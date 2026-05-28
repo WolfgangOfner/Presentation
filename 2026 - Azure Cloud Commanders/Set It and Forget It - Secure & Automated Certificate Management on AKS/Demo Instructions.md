@@ -205,8 +205,6 @@ spec:
 $HttpRouteDemoApp | kubectl apply -f -
 
 kubectl get all -n $DemoNamespace
-
-kubectl describe gateway -n $GatewayNamespace
 ```
 
 ## Install the Cert Manager and ClusterIssuer
@@ -269,27 +267,31 @@ helm upgrade cert-manager jetstack/cert-manager `
 
 kubectl describe pod -n cert-manager -l app.kubernetes.io/component=controller
 
-az identity create `
-  --name $CertManagerManagedIdentityName `
-  --resource-group $ResourceGroupName
-
 $CertManagerManagedIdentityClientId=$(`
-  az identity show `
+az identity create `
   --name $CertManagerManagedIdentityName `
   --resource-group $ResourceGroupName `
   --query 'clientId' `
   --output tsv)
 
+$ManagedIdentityObjectId=$(`
+  az identity show `
+  --name $CertManagerManagedIdentityName `
+  --resource-group $ResourceGroupName `
+  --query 'principalId' `
+  --output tsv)
+
 az role assignment create `
     --role "DNS Zone Contributor" `
-    --assignee $CertManagerManagedIdentityClientId `
+    --assignee-object-id $ManagedIdentityObjectId `
+    --assignee-principal-type "ServicePrincipal" `
     --scope $(`
         az network dns zone show `
         --name $DnsZoneName `
         --resource-group $DnsResourceGroup `
         --subscription $DnsSubscriptionName `
         --query id `
-        --output tsv )
+        --output tsv)
 
 $AksOidcIssuer="$(`
   az aks show `
@@ -427,3 +429,5 @@ kubectl get certificates -A
 
 curl https://azure-cloud-commanders.$DemoUrl -UseBasicParsing
 ```
+
+Check DNS Activity Log
