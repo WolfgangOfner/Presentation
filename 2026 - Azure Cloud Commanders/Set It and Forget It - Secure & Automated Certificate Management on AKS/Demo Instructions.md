@@ -14,6 +14,7 @@ $WildcardSecretName="wildcard-letsencrypt-secret"
 $DemoSecretName="demo-letsencrypt-secret"
 
 $ClusterIssuerName="letsencrypt"
+$ClusterIsseruEmail="wolfgang@programmingwtihwolfgang.com" # Update with your Email
 $CertManagerNamespace="cert-manager"
 $CertManagerManagedIdentityName="cert-manager"
 $CertManagerServiceAccountName="cert-manager"
@@ -227,7 +228,7 @@ spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory # production endpoint
     # server: https://acme-staging-v02.api.letsencrypt.org/directory # staging endpoint
-    email: wolfgang@programmingwithwolfgang.com
+    email: $ClusterIsseruEmail
     privateKeySecretRef:
       name: letsencrypt-private-key
     solvers:
@@ -241,10 +242,10 @@ spec:
 
 $ClusterIssuer | kubectl apply -f -
 
-kubectl get CertificateRequest -n $GatewayNamespace
-kubectl get certificate -n $GatewayNamespace
-kubectl get order -n $GatewayNamespace
 kubectl get secret -n $GatewayNamespace
+kubectl get certificate -n $GatewayNamespace
+kubectl get CertificateRequest -n $GatewayNamespace
+kubectl get order -n $GatewayNamespace
 kubectl get ClusterIssuer -A -o yaml
 
 curl https://$DemoUrl -UseBasicParsing
@@ -319,8 +320,7 @@ metadata:
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory # production endpoint
-    # server: https://acme-staging-v02.api.letsencrypt.org/directory # staging endpoint
-    email: wolfgang@programmingwithwolfgang.com
+    email: $ClusterIsseruEmail
     privateKeySecretRef:
       name: letsencrypt-private-key
     solvers:
