@@ -14,7 +14,7 @@ $WildcardSecretName="wildcard-letsencrypt-secret"
 $DemoSecretName="demo-letsencrypt-secret"
 
 $ClusterIssuerName="letsencrypt"
-$ClusterIsseruEmail="wolfgang@programmingwtihwolfgang.com" # Update with your Email
+$ClusterIssuerEmail="wolfgang@programmingwtihwolfgang.com" # Update with your Email
 $CertManagerNamespace="cert-manager"
 $CertManagerManagedIdentityName="cert-manager"
 $CertManagerServiceAccountName="cert-manager"
@@ -228,7 +228,7 @@ spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory # production endpoint
     # server: https://acme-staging-v02.api.letsencrypt.org/directory # staging endpoint
-    email: $ClusterIsseruEmail
+    email: $ClusterIssuerEmail
     privateKeySecretRef:
       name: letsencrypt-private-key
     solvers:
@@ -316,11 +316,10 @@ apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: $ClusterIssuerName
-  namespace: $InfrastructureNamespace
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory # production endpoint
-    email: $ClusterIsseruEmail
+    email: $ClusterIssuerEmail
     privateKeySecretRef:
       name: letsencrypt-private-key
     solvers:
@@ -328,7 +327,7 @@ spec:
           gatewayHTTPRoute:
             parentRefs:
               - name: $GatewayName
-                namespace: $InfrastructureNamespace
+                namespace: $GatewayNamespace
                 kind: Gateway
       - dns01:
           azureDNS:
