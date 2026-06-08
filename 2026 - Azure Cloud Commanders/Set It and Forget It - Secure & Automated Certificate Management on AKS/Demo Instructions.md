@@ -14,7 +14,7 @@ $WildcardSecretName="wildcard-letsencrypt-secret"
 $DemoSecretName="demo-letsencrypt-secret"
 
 $ClusterIssuerName="letsencrypt"
-$ClusterIssuerEmail="wolfgang@programmingwtihwolfgang.com" # Update with your Email
+$ClusterIssuerEmail="you@email.com" # Update with your Email
 $CertManagerNamespace="cert-manager"
 $CertManagerManagedIdentityName="cert-manager"
 $CertManagerServiceAccountName="cert-manager"
@@ -246,7 +246,7 @@ kubectl get secret -n $GatewayNamespace
 kubectl get certificate -n $GatewayNamespace
 kubectl get CertificateRequest -n $GatewayNamespace
 kubectl get order -n $GatewayNamespace
-kubectl get ClusterIssuer -A -o yaml
+kubectl get ClusterIssuer -o yaml
 
 curl https://$DemoUrl -UseBasicParsing
 ```
@@ -341,7 +341,7 @@ spec:
 
 $ClusterIssuer | kubectl apply -f -
 
-kubectl get ClusterIssuer -A -o yaml
+kubectl get ClusterIssuer -o yaml
 ```
 
 ## Deploy Wildcard Demo App
