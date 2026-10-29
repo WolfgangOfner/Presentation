@@ -41,7 +41,7 @@ az aks create `
   --name $AksName `
   --resource-group $ResourceGroupName `
   --enable-oidc-issuer `
-  --enable-workload-identity   
+  --enable-workload-identity
 
 az aks get-credentials `
   --resource-group $ResourceGroupName `
@@ -108,7 +108,7 @@ spec:
         - group: ""
           kind: Secret
           name: $WildcardSecretName
-          namespace: $GatewayNamespace    
+          namespace: $GatewayNamespace
     allowedRoutes:
       namespaces:
         from: All
@@ -205,7 +205,7 @@ kubectl get certificate -n $GatewayNamespace
 kubectl get order -n $GatewayNamespace
 kubectl get secret -n $GatewayNamespace
 
-kubectl get ClusterIssuer -A -o yaml
+kubectl get ClusterIssuer -o yaml
 
 curl https://$DemoUrl -UseBasicParsing
 ```
@@ -298,7 +298,7 @@ spec:
 
 $ClusterIssuer | kubectl apply -f -
 
-kubectl get ClusterIssuer -A -o yaml
+kubectl get ClusterIssuer -o yaml
 ```
 
 ## Deploy Wildcard Demo App
